@@ -1,5 +1,6 @@
 using RabbitMQ.Client;
-namespace Order.Service.Infrastructure.RabbitMq;
+
+namespace ECommerce.Shared.Infrastructure.RabbitMq;
 
 public class RabbitMqConnection : IDisposable, IRabbitMqConnection
 {
@@ -20,6 +21,7 @@ public class RabbitMqConnection : IDisposable, IRabbitMqConnection
         };
         _connection = factory.CreateConnection();
     }
+
     public void Dispose()
     {
         _connection?.Dispose();

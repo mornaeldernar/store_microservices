@@ -4,11 +4,14 @@ using System.Text;
 using System.Text.Json;
 using Basket.Service.IntegrationEvents;
 using Basket.Service.Infrastructure.Data;
+using ECommerce.Shared.Infrastructure.RabbitMq;
 
 namespace Basket.Service.Infrastructure.RabbitMq;
 
 public class RabbitMqHostedService : IHostedService
 {
+    private const string ExchangeName = "ecommerce-exchange";
+    private const string QueueName="basket-microservice";
     private readonly IServiceProvider _serviceProvider;
     public RabbitMqHostedService(IServiceProvider serviceProvider){
         _serviceProvider = serviceProvider;
@@ -20,8 +23,15 @@ public class RabbitMqHostedService : IHostedService
             var rabbitMQConnection = _serviceProvider.GetRequiredService<IRabbitMqConnection>();
             var channel = rabbitMQConnection.Connection.CreateModel();
 
+            channel.ExchangeDeclare(
+                exchange: ExchangeName,
+                type :"fanout",
+                durable: false,
+                autoDelete:false,
+                null
+            );
             channel.QueueDeclare(
-                queue: nameof(OrderCreatedEvent),
+                queue: QueueName,
                 durable: false,
                 exclusive:false,
                 autoDelete: false,
@@ -31,9 +41,14 @@ public class RabbitMqHostedService : IHostedService
             consumer.Received += OnMessageReceived;
 
             channel.BasicConsume(
-                queue: nameof(OrderCreatedEvent),
+                queue: QueueName,
                 autoAck: true,
                 consumer: consumer
+            );
+            channel.QueueBind(
+                queue:QueueName,
+                exchange:ExchangeName,
+                routingKey:string.Empty
             );
         },
         TaskCreationOptions.LongRunning);
@@ -46,7 +61,7 @@ public class RabbitMqHostedService : IHostedService
         var @event = JsonSerializer.Deserialize(message, typeof(OrderCreatedEvent)) as OrderCreatedEvent;
 
         using var scope = _serviceProvider.CreateScope();
-        
+
         var basketStore = scope.ServiceProvider.GetRequiredService<IBasketStore>();
 
         basketStore.DeleteCustomerBasket(@event.CustomerId);

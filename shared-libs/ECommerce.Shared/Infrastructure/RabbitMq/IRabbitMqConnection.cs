@@ -1,5 +1,6 @@
 using RabbitMQ.Client;
-namespace Basket.Service.Infrastructure.RabbitMq;
+
+namespace ECommerce.Shared.Infrastructure.RabbitMq;
 
 public interface IRabbitMqConnection
 {
