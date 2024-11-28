@@ -1,6 +1,7 @@
 using Basket.Service.Endpoints;
 using Basket.Service.Infrastructure.Data;
-using Basket.Service.Infrastructure.RabbitMq;
+using Basket.Service.IntegrationEvents;
+using Basket.Service.IntegrationEvents.EventHandlers;
 using ECommerce.Shared.Infrastructure.EventBus;
 using ECommerce.Shared.Infrastructure.RabbitMq;
 
