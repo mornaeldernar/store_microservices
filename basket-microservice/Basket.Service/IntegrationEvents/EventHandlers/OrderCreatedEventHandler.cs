@@ -1,7 +1,5 @@
 using Basket.Service.Infrastructure.Data;
 using ECommerce.Shared.Infrastructure.EventBus.Abstractions;
-using Basket.Service.IntegrationEvents;
-
 
 namespace Basket.Service.IntegrationEvents.EventHandlers;
 
@@ -13,9 +11,11 @@ internal class OrderCreatedEventHandler : IEventHandler<OrderCreatedEvent>
     {
         _basketStore = basketStore;
     }
+
     public Task Handle(OrderCreatedEvent @event)
     {
         _basketStore.DeleteCustomerBasket(@event.CustomerId);
+
         return Task.CompletedTask;
     }
 }

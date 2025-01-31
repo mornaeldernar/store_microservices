@@ -5,13 +5,13 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ECommerce.Shared.Infrastructure.RabbitMq;
 public static class RabbitMqStartupExtensions
 {
-    public static IServiceCollection AddRabbitMqEventBus(this IServiceCollection services, 
-    IConfigurationManager configuration)
+    public static IServiceCollection AddRabbitMqEventBus(this IServiceCollection services, IConfigurationManager configuration)
     {
         var rabbitMqOptions = new RabbitMqOptions();
         configuration.GetSection(RabbitMqOptions.RabbitMqSectionName).Bind(rabbitMqOptions);
 
         services.AddSingleton<IRabbitMqConnection>(new RabbitMqConnection(rabbitMqOptions));
+        services.AddSingleton<RabbitMqTelemetry>();
 
         return services;
     }
@@ -26,7 +26,10 @@ public static class RabbitMqStartupExtensions
     )
     {
         services.Configure<EventBusOptions>(configuration.GetSection(EventBusOptions.EventBusSectionName));
+
         services.AddHostedService<RabbitMqHostedService>();
+        services.AddSingleton<RabbitMqTelemetry>();
+
         return services;
     }
 }
